@@ -18,7 +18,7 @@ statement : ID '=:' expr # asignacion
           ;
 
 expr : '(' expr ')' # parentesis
-     | <assoc=right> expr ('+'|'-'|'*'|'%'|'^'|'|') expr # operacion
+     | <assoc=right> expr operador_bin expr # operacion
      | operand+ # operando
      | ID # variable
      ;
@@ -27,8 +27,14 @@ operand : NUM # numero
         | NUM_NEG # numero_negativo
         ;
 
-comment : 'NB.' (ID)+ # comentario
+comment : 'NB.' (ID | NUM | NUM_NEG)+ # comentario
         ;
+
+operador_bin : ('+'|'-'|'*'|'%'|'^'|'|'|'='|'<>'|'<'|'>'|'<='|'>=') # operador_binario
+            ;
+
+operador_un : ('-'|'!') # operador_unario
+            ;
 
 ID  : [a-zA-Z]+ ;
 NUM : [0-9]+ ;

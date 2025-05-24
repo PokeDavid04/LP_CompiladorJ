@@ -54,7 +54,7 @@ class EvalVisitor(gVisitor):
         [op1, operacion, op2] = list(ctx.getChildren())
         res1 = self.visit(op1)
         res2 = self.visit(op2)
-        op = operacion.getText()
+        op = self.visit(operacion)
 
         # Comprobar length error
         if len(res1) != len(res2) and len(res1) != 1 and len(res2) != 1:
@@ -75,6 +75,18 @@ class EvalVisitor(gVisitor):
             res = arr1 ** arr2
         elif op == '|':
             res = arr2 % arr1
+        elif op == '=':
+            res = (arr1 == arr2).astype(int)
+        elif op == '<>':
+            res = (arr1 != arr2).astype(int)
+        elif op == '<':
+            res = (arr1 < arr2).astype(int)
+        elif op == '<=':
+            res = (arr1 <= arr2).astype(int)
+        elif op == '>':
+            res = (arr1 > arr2).astype(int)
+        elif op == '>=':
+            res = (arr1 >= arr2).astype(int)
         else:
             raise Exception(f"Operador no soportado: {op} (Aqui no deberia entrar nunca)")
 
@@ -83,6 +95,14 @@ class EvalVisitor(gVisitor):
     def visitOperando(self, ctx):
         children = list(ctx.getChildren())
         return [self.visit(child) for child in children]
+    
+    def visitOperador_binario(self, ctx):
+        [op] = list(ctx.getChildren())
+        return op.getText()
+    
+    def visitOperador_unario(self, ctx):
+        [op] = list(ctx.getChildren())
+        return op.getText()
     
     def visitVariable(self, ctx):
         [variable] = list(ctx.getChildren())
