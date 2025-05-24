@@ -1,0 +1,7 @@
+# Archivos generados por el compilador
+*.tokens
+*.interp
+
+# Carpetas
+.antlr
+__pycache__
