@@ -10,6 +10,7 @@ import sys
 class EvalVisitor(gVisitor):
     def __init__(self):
         self.variables = {}
+        self.funciones = {}
 
     def visitArrel(self, ctx):
         # (statement? comment? '\n')* EOF
@@ -20,12 +21,17 @@ class EvalVisitor(gVisitor):
                 res = self.visit(child)
 
                 if isinstance(res, str):
-                    print(res, '=:', end=' ')
-                    for r in self.variables[res]:
-                        if isinstance(r, int) and r < 0:
-                            print("_" + str(abs(r)), end=' ')
-                        else: 
-                            print(r, end=' ')
+                    if res in self.variables:
+                        print(res, '=:', end=' ')
+                        for r in self.variables[res]:
+                            if isinstance(r, int) and r < 0:
+                                print("_" + str(abs(r)), end=' ')
+                            else: 
+                                print(r, end=' ')
+                    elif res in self.funciones:
+                        print(res, '=:', end=' ')
+                        func = self.funciones[res]
+                        print("<funcion>", end=' ')
 
                 elif isinstance(res, list):
                     for element in res:
@@ -51,6 +57,15 @@ class EvalVisitor(gVisitor):
         [expresion] = list(ctx.getChildren())
         return self.visit(expresion)
 
+    def visitAsignacion_funcion(self, ctx):
+        # ID '=:' funcion
+        [name, _, funcion] = list(ctx.getChildren())
+        fun_name = name.getText()
+        func = self.visit(funcion)
+        self.funciones[fun_name] = func
+        return fun_name
+
+
     def visitParentesis(self, ctx):
         # '(' expr ')'
         [_, expressio, _] = list(ctx.getChildren())
@@ -62,10 +77,6 @@ class EvalVisitor(gVisitor):
         res1 = self.visit(expr1)
         res2 = self.visit(expr2)
         op = self.visit(operacion)
-
-        # Comprobar length error
-        if len(res1) != len(res2) and len(res1) != 1 and len(res2) != 1 and op != ',' and op != '{':
-            raise Exception("Las listas deben tener la misma longitud o una de ellas debe tener un solo elemento.")
 
         return realizar_operacion(op, res1, res2)
 
@@ -90,9 +101,6 @@ class EvalVisitor(gVisitor):
         op = self.visit(operacion)
         mod_op = self.visit(mod)
 
-        if len(res1) != len(res2) and len(res1) != 1 and len(res2) != 1 and op != ',' and op != '{':
-            raise Exception("Las listas deben tener la misma longitud o una de ellas debe tener un solo elemento.")
-    
         if mod_op == '~':
             return realizar_operacion(op, res2, res1)
 
@@ -106,7 +114,30 @@ class EvalVisitor(gVisitor):
         if mod_op == ':':
             return realizar_operacion(op, exp, exp)
         elif mod_op == '/':
-            return [reduce(lambda acc,y: realizar_operacion(op, acc, y), exp)]
+            if op == '+':
+                return [reduce(lambda acc, y: acc + y, exp)]
+            if op == '-':
+                return [reduce(lambda acc, y: y - acc, exp)]
+            elif op == '*':
+                return [reduce(lambda acc, y: acc * y, exp)]
+            elif op == '%':
+                return [reduce(lambda acc, y: y // acc, exp)]
+            elif op == '^':
+                return [reduce(lambda acc, y: y ** acc, exp)]
+            elif op == '|':
+                return [reduce(lambda acc, y: y % acc, exp)]
+            else:
+                raise Exception(f"Operador no soportado para fold: {op}")
+
+    def visitLlamada_funcion(self, ctx):
+        # ID expr
+        [name, expresion] = list(ctx.getChildren())
+        fun_name = name.getText()
+        expr = self.visit(expresion)
+        func = self.funciones.get(fun_name)
+        if func is None:
+            raise Exception(f"Funcion '{fun_name}' no definida.")
+        return func(expr)
 
     def visitOperando(self, ctx):
         # operand+
@@ -143,6 +174,97 @@ class EvalVisitor(gVisitor):
         [op] = list(ctx.getChildren())
         return op.getText()
     
+    def visitOperador_composicion(self, ctx):
+        # ('@:')
+        [op] = list(ctx.getChildren())
+        return op.getText()
+
+    def visitF1(self, ctx):
+        # expr operador_bin
+        [expresion, operacion] = list(ctx.getChildren())
+        expr = self.visit(expresion)
+        op = self.visit(operacion)
+        return lambda x: realizar_operacion(op, expr, x)
+
+    def visitF2(self, ctx):
+        # operador_un
+        [operacion] = list(ctx.getChildren())
+        op = self.visit(operacion)
+        
+        if op == ']':
+            return (lambda x: x)
+        elif op == '#':
+            return (lambda x: [len(x)])
+        elif op == 'i.':
+            return lambda x: [i for i in range(x[0])]
+
+    def visitF3(self, ctx):
+        # expr operador_bin operador_bin_comb
+        [expresion, operacion, mod] = list(ctx.getChildren())
+        expr = self.visit(expresion)
+        op = self.visit(operacion)
+        mod_op = self.visit(mod)
+        
+        if mod_op == '~':
+            return lambda x: realizar_operacion(op, x, expr)
+        
+    def visitF4(self, ctx):
+        # operador_bin operador_un_comb
+        [operacion, mod] = list(ctx.getChildren())
+        op = self.visit(operacion)
+        mod_op = self.visit(mod)
+        
+        if mod_op == ':':
+            return lambda x: realizar_operacion(op, x, x)
+        elif mod_op == '/':
+            if op == '+':
+                return lambda x: [reduce(lambda acc, y: acc + y, x)]
+            elif op == '*':
+                return lambda x: [reduce(lambda acc, y: acc * y, x)]
+            elif op == '%':
+                return lambda x: [reduce(lambda acc, y: y // acc, x)]
+            elif op == '^':
+                return lambda x: [reduce(lambda acc, y: y ** acc, x)]
+            elif op == '|':
+                return lambda x: [reduce(lambda acc, y: y % acc, x)]
+            elif op == '-':
+                return lambda x: [reduce(lambda acc, y: y - acc, x)]
+            else:
+                raise Exception(f"Operador no soportado para fold: {op}")
+
+    def visitFuncion_id(self, ctx):
+        # ID
+        [id_funcion] = list(ctx.getChildren())
+        fun_name = id_funcion.getText()
+        
+        if fun_name not in self.funciones:
+            raise Exception(f"Funcion '{fun_name}' no definida.")
+        
+        return self.funciones[fun_name]
+
+    def funcion_compuesta(self, ops_un, x):
+        for op_un in reversed(ops_un):
+            if op_un == ']':
+                x = x
+            elif op_un == '#':
+                x = [len(x)]
+            elif op_un == 'i.':
+                x = [i for i in range(x[0])]
+            else:
+                x = op_un(x)
+        return x
+
+    def visitComposicion(self, ctx):
+        # funcion_simple (operador_comp funcion_simple)*
+        children = list(ctx.getChildren())
+        funs = []
+        i = 1
+        while i < len(children):
+            if children[i].getText() != '@:':
+                funs.append(self.visit(children[i]))
+            i += 1
+        return lambda x: self.funcion_compuesta(funs, x)
+
     def visitNumero(self, ctx):
         # NUM = [0-9]+
         [numero] = list(ctx.getChildren())
@@ -161,6 +283,10 @@ class EvalVisitor(gVisitor):
 
 
 def realizar_operacion(op, op1, op2):
+    # Comprobar length error
+    if len(op1) != len(op2) and len(op1) != 1 and len(op2) != 1 and op != ',' and op != '{':
+        raise Exception("Las listas deben tener la misma longitud o una de ellas debe tener un solo elemento.")
+    
     arr1 = np.array(op1)
     arr2 = np.array(op2)
 
