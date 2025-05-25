@@ -29,18 +29,53 @@ class gVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by gParser#operacion_binaria.
+    def visitOperacion_binaria(self, ctx:gParser.Operacion_binariaContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by gParser#variable.
     def visitVariable(self, ctx:gParser.VariableContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by gParser#operacion.
-    def visitOperacion(self, ctx:gParser.OperacionContext):
+    # Visit a parse tree produced by gParser#operando.
+    def visitOperando(self, ctx:gParser.OperandoContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by gParser#operando.
-    def visitOperando(self, ctx:gParser.OperandoContext):
+    # Visit a parse tree produced by gParser#operacion_binaria_combinada.
+    def visitOperacion_binaria_combinada(self, ctx:gParser.Operacion_binaria_combinadaContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#operacion_unaria.
+    def visitOperacion_unaria(self, ctx:gParser.Operacion_unariaContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#operacion_unaria_combinada.
+    def visitOperacion_unaria_combinada(self, ctx:gParser.Operacion_unaria_combinadaContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#operador_binario.
+    def visitOperador_binario(self, ctx:gParser.Operador_binarioContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#operador_unario.
+    def visitOperador_unario(self, ctx:gParser.Operador_unarioContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#operador_binario_combinacion.
+    def visitOperador_binario_combinacion(self, ctx:gParser.Operador_binario_combinacionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#operador_unario_combinacion.
+    def visitOperador_unario_combinacion(self, ctx:gParser.Operador_unario_combinacionContext):
         return self.visitChildren(ctx)
 
 
@@ -56,16 +91,6 @@ class gVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by gParser#comentario.
     def visitComentario(self, ctx:gParser.ComentarioContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#operador_binario.
-    def visitOperador_binario(self, ctx:gParser.Operador_binarioContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#operador_unario.
-    def visitOperador_unario(self, ctx:gParser.Operador_unarioContext):
         return self.visitChildren(ctx)
 
 
