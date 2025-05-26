@@ -69,6 +69,26 @@ class gVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by gParser#f_comp.
+    def visitF_comp(self, ctx:gParser.F_compContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#f_un.
+    def visitF_un(self, ctx:gParser.F_unContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#f_bin.
+    def visitF_bin(self, ctx:gParser.F_binContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#f_comb_un.
+    def visitF_comb_un(self, ctx:gParser.F_comb_unContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by gParser#operador_binario.
     def visitOperador_binario(self, ctx:gParser.Operador_binarioContext):
         return self.visitChildren(ctx)
@@ -86,41 +106,6 @@ class gVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by gParser#operador_unario_combinacion.
     def visitOperador_unario_combinacion(self, ctx:gParser.Operador_unario_combinacionContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#operador_composicion.
-    def visitOperador_composicion(self, ctx:gParser.Operador_composicionContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#f1.
-    def visitF1(self, ctx:gParser.F1Context):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#f2.
-    def visitF2(self, ctx:gParser.F2Context):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#f3.
-    def visitF3(self, ctx:gParser.F3Context):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#f4.
-    def visitF4(self, ctx:gParser.F4Context):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#funcion_id.
-    def visitFuncion_id(self, ctx:gParser.Funcion_idContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#composicion.
-    def visitComposicion(self, ctx:gParser.ComposicionContext):
         return self.visitChildren(ctx)
 
 

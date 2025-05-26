@@ -1,2 +1,9 @@
 
 
+square =: <funcion> 
+1 4 9 16 
+
+mod =: <funcion> 
+0 1 0 1 
+
+eq =: <funcion> 

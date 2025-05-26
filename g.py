@@ -179,46 +179,52 @@ class EvalVisitor(gVisitor):
         [op] = list(ctx.getChildren())
         return op.getText()
 
-    def visitF1(self, ctx):
-        # expr operador_bin
-        [expresion, operacion] = list(ctx.getChildren())
-        expr = self.visit(expresion)
-        op = self.visit(operacion)
-        return lambda x: realizar_operacion(op, expr, x)
+    def visitF_comp(self, ctx):
+        # funcion_atom ('@:' funcion_atom)*
+        children = list(ctx.getChildren())
+        ops = []
+        for i in range(len(children)):
+            name = children[i].getText()
+            if name == '@:':
+                continue
+            elif name in self.funciones:
+                op = self.funciones[name]
+            else:
+                op = self.visit(children[i])
+            ops.append(op)
+        return lambda x: compon(ops, x)
 
-    def visitF2(self, ctx):
+    def visitF_un(self, ctx):
         # operador_un
-        [operacion] = list(ctx.getChildren())
-        op = self.visit(operacion)
-        
+        [operador] = list(ctx.getChildren())
+        op = self.visit(operador)
         if op == ']':
-            return (lambda x: x)
+            return lambda x: x
         elif op == '#':
-            return (lambda x: [len(x)])
+            return lambda x: [len(x)]
         elif op == 'i.':
             return lambda x: [i for i in range(x[0])]
 
-    def visitF3(self, ctx):
-        # expr operador_bin operador_bin_comb
-        [expresion, operacion, mod] = list(ctx.getChildren())
-        expr = self.visit(expresion)
-        op = self.visit(operacion)
-        mod_op = self.visit(mod)
-        
-        if mod_op == '~':
-            return lambda x: realizar_operacion(op, x, expr)
-        
-    def visitF4(self, ctx):
+    def visitF_bin(self, ctx):
+        # expr operador_bin ']'
+        [expr, op, _] = list(ctx.getChildren())
+        exp = self.visit(expr)
+        op = self.visit(op)
+        return lambda x: realizar_operacion(op, exp, x)
+
+    
+    def visitF_comb_un(self, ctx):
         # operador_bin operador_un_comb
-        [operacion, mod] = list(ctx.getChildren())
-        op = self.visit(operacion)
+        [op, mod] = list(ctx.getChildren())
+        op = self.visit(op)
         mod_op = self.visit(mod)
-        
         if mod_op == ':':
             return lambda x: realizar_operacion(op, x, x)
         elif mod_op == '/':
             if op == '+':
                 return lambda x: [reduce(lambda acc, y: acc + y, x)]
+            if op == '-':
+                return lambda x: [reduce(lambda acc, y: y - acc, x)]
             elif op == '*':
                 return lambda x: [reduce(lambda acc, y: acc * y, x)]
             elif op == '%':
@@ -227,44 +233,18 @@ class EvalVisitor(gVisitor):
                 return lambda x: [reduce(lambda acc, y: y ** acc, x)]
             elif op == '|':
                 return lambda x: [reduce(lambda acc, y: y % acc, x)]
-            elif op == '-':
-                return lambda x: [reduce(lambda acc, y: y - acc, x)]
             else:
                 raise Exception(f"Operador no soportado para fold: {op}")
 
-    def visitFuncion_id(self, ctx):
+
+    def visitF_id(self, ctx):
         # ID
-        [id_funcion] = list(ctx.getChildren())
-        fun_name = id_funcion.getText()
-        
-        if fun_name not in self.funciones:
+        [id] = list(ctx.getChildren())
+        fun_name = id.getText()
+        if not fun_name in self.funciones:
             raise Exception(f"Funcion '{fun_name}' no definida.")
-        
         return self.funciones[fun_name]
-
-    def funcion_compuesta(self, ops_un, x):
-        for op_un in reversed(ops_un):
-            if op_un == ']':
-                x = x
-            elif op_un == '#':
-                x = [len(x)]
-            elif op_un == 'i.':
-                x = [i for i in range(x[0])]
-            else:
-                x = op_un(x)
-        return x
-
-    def visitComposicion(self, ctx):
-        # funcion_simple (operador_comp funcion_simple)*
-        children = list(ctx.getChildren())
-        funs = []
-        i = 1
-        while i < len(children):
-            if children[i].getText() != '@:':
-                funs.append(self.visit(children[i]))
-            i += 1
-        return lambda x: self.funcion_compuesta(funs, x)
-
+    
     def visitNumero(self, ctx):
         # NUM = [0-9]+
         [numero] = list(ctx.getChildren())
@@ -325,6 +305,15 @@ def realizar_operacion(op, op1, op2):
         raise Exception(f"Operador no soportado: {op} (Aqui no deberia entrar nunca)")
 
     return res.tolist()
+
+def compon(ops, x):
+    for op in reversed(ops):
+        if callable(op):
+            x = op(x)
+        else:
+            raise Exception(f"Operador no soportado en la composicion: {op}")
+    return x
+
 
 
 def main():
