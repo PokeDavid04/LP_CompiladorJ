@@ -1,6 +1,9 @@
 # Archivos generados por el compilador
 *.tokens
 *.interp
+gLexer.py
+gParser.py
+gVisitor.py
 
 # Carpetas
 .antlr
