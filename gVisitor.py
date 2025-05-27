@@ -24,13 +24,13 @@ class gVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by gParser#asignacion_funcion.
-    def visitAsignacion_funcion(self, ctx:gParser.Asignacion_funcionContext):
+    # Visit a parse tree produced by gParser#parentesis.
+    def visitParentesis(self, ctx:gParser.ParentesisContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by gParser#parentesis.
-    def visitParentesis(self, ctx:gParser.ParentesisContext):
+    # Visit a parse tree produced by gParser#operacion_binaria_filtro.
+    def visitOperacion_binaria_filtro(self, ctx:gParser.Operacion_binaria_filtroContext):
         return self.visitChildren(ctx)
 
 
@@ -39,18 +39,28 @@ class gVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by gParser#llamada_funcion.
-    def visitLlamada_funcion(self, ctx:gParser.Llamada_funcionContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by gParser#variable.
     def visitVariable(self, ctx:gParser.VariableContext):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by gParser#llamada_funcion.
+    def visitLlamada_funcion(self, ctx:gParser.Llamada_funcionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#f_comb_un.
+    def visitF_comb_un(self, ctx:gParser.F_comb_unContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by gParser#operando.
     def visitOperando(self, ctx:gParser.OperandoContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by gParser#f_un.
+    def visitF_un(self, ctx:gParser.F_unContext):
         return self.visitChildren(ctx)
 
 
@@ -71,21 +81,6 @@ class gVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by gParser#f_comp.
     def visitF_comp(self, ctx:gParser.F_compContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#f_un.
-    def visitF_un(self, ctx:gParser.F_unContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#f_bin.
-    def visitF_bin(self, ctx:gParser.F_binContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by gParser#f_comb_un.
-    def visitF_comb_un(self, ctx:gParser.F_comb_unContext):
         return self.visitChildren(ctx)
 
 

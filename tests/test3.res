@@ -14,9 +14,9 @@
 0 
 
 
-a =: 5 
+a =: <asignada> 
 
-b =: 10 
+b =: <asignada> 
 
 0 
 
@@ -57,15 +57,15 @@ b =: 10
 1 0 1 
 
 
-c =: 1 
+c =: <asignada> 
 
 1 
 
-d =: 1 1 0 
+d =: <asignada> 
 
 1 1 0 
 
-e =: 0 0 1 
+e =: <asignada> 
 
 0 0 1 
 

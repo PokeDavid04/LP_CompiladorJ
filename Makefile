@@ -41,6 +41,5 @@ clean:
 	rm -f *.interp
 	rm -f g[A-Z]*.py
 	rm -f __pycache__/*
-	rm -rf jocs_proves/sortida
 
-.PHONY: all generate clean test
+.PHONY: all generate clean test diff

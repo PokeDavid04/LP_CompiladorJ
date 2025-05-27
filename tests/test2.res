@@ -1,33 +1,33 @@
-a =: 5 
+a =: <asignada> 
 
-b =: 1 2 3 
+b =: <asignada> 
 
 6 7 8 
 
-c =: 7 
+c =: <asignada> 
 
 7 
 
-d =: 2 4 6 
+d =: <asignada> 
 
 2 4 6 
 
-e =: 8 11 14 
+e =: <asignada> 
 
 8 11 14 
 
-f =: 49 
+f =: <asignada> 
 
 49 
 
-g =: 0 2 2 
+g =: <asignada> 
 
 0 2 2 
 
-b =: 4 4 4 
+b =: <asignada> 
 
 4 4 4 
 
-i =: _1 
+i =: <asignada> 
 
 _4 _4 _4 

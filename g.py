@@ -10,7 +10,6 @@ import sys
 class EvalVisitor(gVisitor):
     def __init__(self):
         self.variables = {}
-        self.funciones = {}
 
     def visitArrel(self, ctx):
         # (statement? comment? '\n')* EOF
@@ -18,20 +17,16 @@ class EvalVisitor(gVisitor):
 
         for child in children:
             if child.getText() != '<EOF>':
-                res = self.visit(child)
+                # print('Vissiting:', child.getText())
+                try:
+                    res = self.visit(child)
+                except Exception as e:
+                    print(f"Error: {e}")
+                    break
 
                 if isinstance(res, str):
                     if res in self.variables:
-                        print(res, '=:', end=' ')
-                        for r in self.variables[res]:
-                            if isinstance(r, int) and r < 0:
-                                print("_" + str(abs(r)), end=' ')
-                            else: 
-                                print(r, end=' ')
-                    elif res in self.funciones:
-                        print(res, '=:', end=' ')
-                        func = self.funciones[res]
-                        print("<funcion>", end=' ')
+                        print(res, '=: <asignada>', end=' ')
 
                 elif isinstance(res, list):
                     for element in res:
@@ -48,7 +43,6 @@ class EvalVisitor(gVisitor):
         [variable, _, expresion] = list(ctx.getChildren())
         var_name = variable.getText()
         value = self.visit(expresion)
-        
         self.variables[var_name] = value
         return var_name
     
@@ -56,15 +50,6 @@ class EvalVisitor(gVisitor):
         # expr
         [expresion] = list(ctx.getChildren())
         return self.visit(expresion)
-
-    def visitAsignacion_funcion(self, ctx):
-        # ID '=:' funcion
-        [name, _, funcion] = list(ctx.getChildren())
-        fun_name = name.getText()
-        func = self.visit(funcion)
-        self.funciones[fun_name] = func
-        return fun_name
-
 
     def visitParentesis(self, ctx):
         # '(' expr ')'
@@ -74,16 +59,27 @@ class EvalVisitor(gVisitor):
     def visitOperacion_binaria(self, ctx):
         # expr operador_bin expr
         [expr1, operacion, expr2] = list(ctx.getChildren())
-        res1 = self.visit(expr1)
-        res2 = self.visit(expr2)
         op = self.visit(operacion)
+        
+        res1 = self.visit(expr1)
+        if not isinstance(res1, list): 
+            raise Exception(f'El primer operando debe ser una lista, pero se obtuvo: {type(res1)}')
 
+        if expr2.getText()  == ']':
+            return lambda x: realizar_operacion(op, res1, x)
+        
+        res2 = self.visit(expr2)
+        if not isinstance(res2, list):
+            raise Exception(f'El segundo operando debe ser una lista, pero se obtuvo: {type(res2)}')
+        
         return realizar_operacion(op, res1, res2)
 
     def visitOperacion_unaria(self, ctx):
         # operador_un expr
         [operador, expresion] = list(ctx.getChildren())
         exp = self.visit(expresion)
+        if not isinstance(exp, list):
+            raise Exception("El operando debe ser una lista.")
         op = self.visit(operador)
 
         if op == ']':
@@ -98,6 +94,8 @@ class EvalVisitor(gVisitor):
         [expr1, operacion, mod, expr2] = list(ctx.getChildren())
         res1 = self.visit(expr1)
         res2 = self.visit(expr2)
+        if not isinstance(res1, list) or not isinstance(res2, list):
+            raise Exception("Ambos operandos deben ser listas.")
         op = self.visit(operacion)
         mod_op = self.visit(mod)
 
@@ -108,6 +106,8 @@ class EvalVisitor(gVisitor):
         # operador_bin operador_un_comb expr
         [operacion, mod, expresion] = list(ctx.getChildren())
         exp = self.visit(expresion)
+        if not isinstance(exp, list):
+            raise Exception("El operando debe ser una lista.")
         op = self.visit(operacion)
         mod_op = self.visit(mod)
 
@@ -128,15 +128,34 @@ class EvalVisitor(gVisitor):
                 return [reduce(lambda acc, y: y % acc, exp)]
             else:
                 raise Exception(f"Operador no soportado para fold: {op}")
+            
+    def visitOperacion_binaria_filtro(self, ctx):
+        # expr '#' expr
+        [expr1, _, expr2] = list(ctx.getChildren())
+        res1 = self.visit(expr1)
+        res2 = self.visit(expr2)
+        if not isinstance(res1, list): 
+            raise Exception(f'El primer operando debe ser una lista, pero se obtuvo: {type(res1)}')
+        if not isinstance(res2, list):
+            raise Exception(f'El segundo operando debe ser una lista, pero se obtuvo: {type(res2)}')
+        
+        return realizar_operacion('#', res1, res2)
 
     def visitLlamada_funcion(self, ctx):
         # ID expr
         [name, expresion] = list(ctx.getChildren())
         fun_name = name.getText()
-        expr = self.visit(expresion)
-        func = self.funciones.get(fun_name)
-        if func is None:
+        if fun_name not in self.variables:
             raise Exception(f"Funcion '{fun_name}' no definida.")
+        
+        func = self.variables[fun_name]
+        if not callable(func):
+            raise Exception(f"'{fun_name}' no es una funcion.")
+        
+        expr = self.visit(expresion)
+        if not isinstance(expr, list):
+            raise Exception("El argumento de la funcion debe ser una lista.")
+        
         return func(expr)
 
     def visitOperando(self, ctx):
@@ -150,12 +169,12 @@ class EvalVisitor(gVisitor):
         var_name = variable.getText()
         
         if var_name not in self.variables:
-            raise Exception(f"Variable '{var_name}' no definida.")
+            raise Exception(f"Variable o funcion '{var_name}' no definida.")
         
         return self.variables[var_name]
     
     def visitOperador_binario(self, ctx):
-        # ('+'|'-'|'*'|'%'|'^'|'|'|'='|'<>'|'<'|'>'|'<='|'>=')
+        # ('+'|'-'|'*'|'%'|'^'|'|'|'='|'<>'|'<'|'>'|'<='|'>='|','|'#'|'{')
         [op] = list(ctx.getChildren())
         return op.getText()
     
@@ -180,19 +199,13 @@ class EvalVisitor(gVisitor):
         return op.getText()
 
     def visitF_comp(self, ctx):
-        # funcion_atom ('@:' funcion_atom)*
-        children = list(ctx.getChildren())
-        ops = []
-        for i in range(len(children)):
-            name = children[i].getText()
-            if name == '@:':
-                continue
-            elif name in self.funciones:
-                op = self.funciones[name]
-            else:
-                op = self.visit(children[i])
-            ops.append(op)
-        return lambda x: compon(ops, x)
+        # funcion '@:' funcion
+        [func1, _, func2] = list(ctx.getChildren())
+        func1 = self.visit(func1)
+        func2 = self.visit(func2)
+        if not callable(func1) or not callable(func2):
+            raise Exception("Ambas funciones deben ser llamadas.")
+        return lambda x: func1(func2(x))
 
     def visitF_un(self, ctx):
         # operador_un
@@ -212,7 +225,6 @@ class EvalVisitor(gVisitor):
         op = self.visit(op)
         return lambda x: realizar_operacion(op, exp, x)
 
-    
     def visitF_comb_un(self, ctx):
         # operador_bin operador_un_comb
         [op, mod] = list(ctx.getChildren())
@@ -235,15 +247,6 @@ class EvalVisitor(gVisitor):
                 return lambda x: [reduce(lambda acc, y: y % acc, x)]
             else:
                 raise Exception(f"Operador no soportado para fold: {op}")
-
-
-    def visitF_id(self, ctx):
-        # ID
-        [id] = list(ctx.getChildren())
-        fun_name = id.getText()
-        if not fun_name in self.funciones:
-            raise Exception(f"Funcion '{fun_name}' no definida.")
-        return self.funciones[fun_name]
     
     def visitNumero(self, ctx):
         # NUM = [0-9]+
