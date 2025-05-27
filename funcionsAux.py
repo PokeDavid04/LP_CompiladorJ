@@ -44,11 +44,3 @@ def realizar_operacion(op, op1, op2):
         raise Exception(f"Operador no soportado: {op}")
 
     return res.tolist()
-
-def compon(ops, x):
-    for op in reversed(ops):
-        if callable(op):
-            x = op(x)
-        else:
-            raise Exception(f"Operador no soportado en la composicion: {op}")
-    return x

@@ -6,7 +6,6 @@ from functools import reduce
 import numpy as np
 import sys
 from funcionsAux import realizar_operacion
-from funcionsAux import compon
 
 class EvalVisitor(gVisitor):
     def __init__(self):
