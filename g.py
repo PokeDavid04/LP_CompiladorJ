@@ -35,6 +35,9 @@ class EvalVisitor(gVisitor):
                             print("_" + str(abs(element)), end=' ')
                         else:
                             print(element, end=' ')
+                
+                elif callable(res):
+                    print(f"Una funcion no puede ser una expresion independiente.")
 
                 elif child.getText() == '\n':
                     print()
