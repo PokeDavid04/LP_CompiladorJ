@@ -1,6 +1,6 @@
 grammar g;
 
-root : (statement? comment? '\n')* EOF # arrel
+root : (statement? '\n')* EOF # arrel
      ;
 
 statement : ID '=:' expr # asignacion
@@ -10,9 +10,9 @@ statement : ID '=:' expr # asignacion
 expr : '(' expr ')' # parentesis
      | operador_bin operador_un_comb # f_comb_un
      | <assoc=right> expr '#' expr # operacion_binaria_filtro
+     | <assoc=right> expr operador_bin expr # operacion_binaria
      | <assoc=right> expr operador_bin operador_bin_comb expr # operacion_binaria_combinada
      | <assoc=right> operador_bin operador_un_comb expr # operacion_unaria_combinada
-     | <assoc=right> expr operador_bin expr # operacion_binaria
      | <assoc=right> operador_un expr # operacion_unaria
      | operand+ # operando
      | ID # variable
@@ -37,7 +37,7 @@ operand : NUM # numero
         | NUM_NEG # numero_negativo
         ;
 
-comment : 'NB.' (ID | NUM | NUM_NEG | SIMB | ACC)* # comentario
+COMENT : 'NB.' ~[\r\n]* -> skip
         ;
 
 ID  : [a-zA-Z][a-zA-Z0-9]* ;
