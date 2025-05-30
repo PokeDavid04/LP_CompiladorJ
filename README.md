@@ -70,7 +70,7 @@ El llenguatge G implementa un subconjunt del llenguatge J, amb les següents fun
 ### Operadors aritmètics
 - Suma: `+` (ex: `1 + 2 3` resulta en `3 4`)
 - Resta: `-` (ex: `5 - 2` resulta en `3`)
-- Multiplicació: `*` (ex: `2 * 3` resulta en `6`)
+- Multiplicació: `*` (ex: `1 2 * 3 3` resulta en `3 6`)
 - Divisió entera: `%` (ex: `7 % 2` resulta en `3`)
 - Potència: `^` (ex: `2 ^ 3` resulta en `8`)
 - Mòdul: `|` (ex: `2 | 7` resulta en `1`) - Nota: els operands van al revés
@@ -95,7 +95,7 @@ El llenguatge G implementa un subconjunt del llenguatge J, amb les següents fun
 
 ### Combinadors d'operadors
 - Self-apply: `:` (ex: `+: 1 2 3` resulta en `2 4 6`, equivalent a `1 2 3 + 1 2 3`)
-- Fold: `/` (ex: `+/ 1 2 3` resulta en `6`, suma tots els elements)
+- Fold: `/` (ex: `+/ 1 2 3` resulta en `6`, suma tots els elements) - Nota: només es poden aplicar a operadors aritmètics.
 - Flip: `~` (ex: `7 |~ 2` resulta en `1`, inverteix els operands)
 
 ### Variables i assignacions
