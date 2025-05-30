@@ -95,7 +95,7 @@ El llenguatge G implementa un subconjunt del llenguatge J, amb les següents fun
 
 ### Combinadors d'operadors
 - Self-apply: `:` (ex: `+: 1 2 3` resulta en `2 4 6`, equivalent a `1 2 3 + 1 2 3`)
-- Fold: `/` (ex: `+/ 1 2 3` resulta en `6`, suma tots els elements) - Nota: només es poden aplicar a operadors aritmètics.
+- Fold: `/` (ex: `+/ 1 2 3` resulta en `6`, suma tots els elements) - Nota: només es pot aplicar a operadors aritmètics.
 - Flip: `~` (ex: `7 |~ 2` resulta en `1`, inverteix els operands)
 
 ### Variables i assignacions
