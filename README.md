@@ -113,6 +113,26 @@ El llenguatge G implementa un subconjunt del llenguatge J, amb les següents fun
   parell i. 6    NB. resultat: 1 0 1 0 1 0
   ```
 
+### Gestió d'errors
+
+L'intèrpret implementa diversos mecanismes per gestionar els errors:
+
+#### Errors sintàctics
+- Es detecten a la funció `main()` utilitzant `parser.getNumberOfSyntaxErrors()`.
+- Si es troba algun error sintàctic, es mostra el nombre d'errors i es finalitza l'execució.
+- S'eliminen els listeners d'errors predeterminats amb `parser.removeErrorListeners()` per evitar missatges detallats del parser d'ANTLR.
+
+#### Errors d'execució
+- Al mètode `visitArrel`, s'implementa un bloc try-except per capturar les excepcions que puguin sorgir durant l'avaluació.
+- Quan es detecta un error, es mostra un missatge amb el prefix "Error:" i es deté el processament del node actual.
+
+#### Errors específics
+L'intèrpret també gestiona errors específics del llenguatge G:
+- Errors de longitud quan s'operen llistes de diferents mides
+- Errors quan els operands no són del tipus esperat (per exemple, no són llistes)
+- Errors quan s'intenta utilitzar variables o funcions no definides
+- Errors quan s'intenta aplicar operadors no suportats o combinacions invàlides
+
 ### Altres característiques
 - Avaluació de dreta a esquerra (menys quan s'usen parèntesis)
 - Vectorització automàtica (si un operand és escalar i l'altre llista)
