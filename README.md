@@ -1,5 +1,7 @@
 # Pràctica LP: Compilador de G
 
+David Berrocal Fidalgo (Grup: 11)
+
 En aquest document es descriu el compilador/intèrpret del llenguatge G desenvolupat com a pràctica de Llenguatges de Programació. G és una versió simplificada de J (derivat d'APL) que treballa principalment amb operacions vectoritzades i té una sintaxi concisa.
 
 ## 1. Compilació
