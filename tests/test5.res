@@ -26,3 +26,4 @@ parell =: <asignada>
 inc =: <asignada> 
 test =: <asignada> 
 6 
+

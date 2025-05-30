@@ -1,6 +1,6 @@
 grammar g;
 
-root : (statement? '\n')* EOF # arrel
+root : (statement? '\n')+ EOF # arrel
      ;
 
 statement : ID '=:' expr # asignacion

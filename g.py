@@ -40,6 +40,7 @@ class EvalVisitor(gVisitor):
 
                 elif child.getText() == '\n':
                     print()
+        print()
 
     def visitAsignacion(self, ctx):
         # ID '=:' expr
@@ -278,6 +279,13 @@ def main():
     lexer = gLexer(input_stream)
     token_stream = CommonTokenStream(lexer)
     parser = gParser(token_stream)
+
+    if parser.getNumberOfSyntaxErrors() > 0:
+        print(parser.getNumberOfSyntaxErrors(), "errores de sintaxis.")
+        print(tree.toStringTree(recog=parser))
+        return
+    
+    parser.removeErrorListeners()
     tree = parser.root()
 
     # Uncomment to see the parse tree structure
